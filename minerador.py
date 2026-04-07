@@ -45,13 +45,13 @@ def conectar_kafka():
                 acks='all',
                 retries=3
             )
-            print(f"✅ Kafka conectado")
+            print(f"[OK] Kafka conectado")
             return
         except:
-            print(f"⏳ Kafka ({tentativa + 1}/{max_tentativas})...")
+            print(f"[TENTANDO] Kafka ({tentativa + 1}/{max_tentativas})...")
             time.sleep(2)
     
-    print("⚠️ Kafka offline, mas continuando")
+    print("[AVISO] Kafka offline, mas continuando")
 
 
 def publicar(topico: str, evento: dict):
@@ -75,15 +75,15 @@ def conectar_rede(url: str):
         try:
             resp = requests.get(f'{url}/minerador/status', timeout=5)
             if resp.status_code == 200:
-                print(f"✅ Rede Central conectada!")
+                print(f"[OK] Rede Central conectada!")
                 return True
         except:
             pass
         
-        print(f"⏳ Aguardando Rede Central ({tentativa + 1}/{max_tentativas})...")
+        print(f"[TENTANDO] Aguardando Rede Central ({tentativa + 1}/{max_tentativas})...")
         time.sleep(3)
     
-    print("❌ Não foi possível conectar à Rede Central")
+    print("[ERRO] Não foi possível conectar à Rede Central")
     sys.exit(1)
 
 
@@ -125,7 +125,7 @@ def proof_of_work(bloco: Bloco, dificuldade: int) -> tuple:
             return hash_gerado, nonce, tentativas
         
         if tentativas % 1_000_000 == 0:
-            print(f"   ⏳ {tentativas:,} tentativas...")
+            print(f"   [TENTANDO] {tentativas:,} tentativas...")
 
 
 # ============================================================================
@@ -134,7 +134,7 @@ def proof_of_work(bloco: Bloco, dificuldade: int) -> tuple:
 def minerador_principal():
     """Loop de mineração"""
     print(f"\n{'='*70}")
-    print(f"⛏️  MINERADOR [{meu_id}] iniciado")
+    print(f"MINERADOR [{meu_id}] iniciado")
     print(f"{'='*70}\n")
     
     ultima_altura = 0
@@ -143,7 +143,7 @@ def minerador_principal():
         try:
             status = obter_status()
             if not status:
-                print("⚠️ Rede offline")
+                print("[AVISO] Rede offline")
                 time.sleep(INTERVALO_POLL)
                 continue
             
@@ -153,18 +153,18 @@ def minerador_principal():
             
             # Detecta novo bloco
             if altura > ultima_altura:
-                print(f"\n🔔 [Bloco #{altura}] adicionado à rede!")
+                print(f"\n[BLOCO] #{altura} adicionado à rede!")
                 ultima_altura = altura
             
             # Valida mempool
             if len(mempool) < 3:
-                print(f"⏳ Mempool ({len(mempool)}/3 NFTs)")
+                print(f"[AGUARDANDO] Mempool ({len(mempool)}/3 NFTs)")
                 time.sleep(INTERVALO_POLL)
                 continue
             
             # Seleciona transações
             txs = mempool[:5]  # Primeiras 5
-            print(f"\n🔍 Validando {len(txs)} transações...")
+            print(f"\n[VALIDANDO] {len(txs)} transações...")
             
             transacoes_obj = []
             for tx_dict in txs:
@@ -176,7 +176,7 @@ def minerador_principal():
                     metadados=tx_dict['metadados']
                 )
                 transacoes_obj.append(tx)
-                print(f"   ✅ {tx.tipo}: {tx.origem[:10]}... → {tx.destino[:10]}...")
+                print(f"   [OK] {tx.tipo}: {tx.origem[:10]}... → {tx.destino[:10]}...")
             
             # Monta bloco
             ultimo_bloco = status['ultimo_bloco']
@@ -189,10 +189,10 @@ def minerador_principal():
                 minerador=meu_id
             )
             
-            print(f"\n⛏️  MINERANDO BLOCO #{prox_index}...")
-            print(f"   📄 Transações: {len(transacoes_obj)}")
-            print(f"   🔗 Hash anterior: {ultimo_bloco['hash'][:16]}...")
-            print(f"   🔒 Dificuldade: {dificuldade} zeros")
+            print(f"\n[MINERANDO] BLOCO #{prox_index}...")
+            print(f"   Transações: {len(transacoes_obj)}")
+            print(f"   Hash anterior: {ultimo_bloco['hash'][:16]}...")
+            print(f"   Dificuldade: {dificuldade} zeros")
             
             tempo_inicio = time.time()
             
@@ -203,12 +203,12 @@ def minerador_principal():
             bloco.hash = hash_encontrado
             bloco.nonce = nonce
             
-            print(f"\n✨ HASH ENCONTRADO!")
-            print(f"   🔢 Nonce: {nonce}")
-            print(f"   🔐 Hash: \033[92m{hash_encontrado}\033[0m")
-            print(f"   📊 Tentativas: {tentativas:,}")
-            print(f"   ⏱️  Tempo: {tempo_decorrido:.2f}s")
-            print(f"   📈 Taxa: {tentativas/tempo_decorrido/1_000_000:.2f}M try/s")
+            print(f"\nHASH ENCONTRADO!")
+            print(f"   Nonce: {nonce}")
+            print(f"   Hash: \033[92m{hash_encontrado}\033[0m")
+            print(f"   Tentativas: {tentativas:,}")
+            print(f"   Tempo: {tempo_decorrido:.2f}s")
+            print(f"   Taxa: {tentativas/tempo_decorrido/1_000_000:.2f}M try/s")
             
             # Publica progresso
             publicar('eventos-rede', {
@@ -221,12 +221,12 @@ def minerador_principal():
             })
             
             # Submete bloco
-            print(f"\n📤 Submetendo bloco à rede...")
+            print(f"\n[SUBMETENDO] Bloco à rede...")
             
             resultado = submeter_bloco(bloco.para_dict())
             
             if resultado['aceito']:
-                print(f"✅ {resultado['mensagem']}")
+                print(f"[OK] {resultado['mensagem']}")
                 
                 publicar('blocos-minerados', {
                     'evento': 'bloco-aceito',
@@ -236,15 +236,15 @@ def minerador_principal():
                     'timestamp': datetime.now().isoformat()
                 })
             else:
-                print(f"❌ Rejeitado: {resultado['mensagem']}")
+                print(f"[REJEITADO] {resultado['mensagem']}")
             
             time.sleep(1)
         
         except KeyboardInterrupt:
-            print("\n\n⏹️  Minerador parado")
+            print("\n\n[PARADO] Minerador encerrado")
             break
         except Exception as e:
-            print(f"💥 Erro: {e}")
+            print(f"[ERRO] {e}")
             time.sleep(INTERVALO_POLL)
 
 

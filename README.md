@@ -1,8 +1,8 @@
-# 🚀 Blockchain NFT Distribuída
+# Blockchain NFT Distribuída
 
 Sistema blockchain descentralizado com Proof of Work em tempo real.
 
-## ⚡ Quick Start
+## Quick Start
 
 ```bash
 cp .env.exemplo .env                    # Cria .env
@@ -12,7 +12,7 @@ curl http://localhost:5000/status       # Status blockchain
 curl http://localhost:5000/explorer     # Últimos 5 blocos
 ```
 
-## 📡 Endpoints HTTP
+## Endpoints HTTP
 
 - `GET /status` → Status blockchain + mempool
 - `GET /explorer` → Últimos 5 blocos
@@ -20,7 +20,7 @@ curl http://localhost:5000/explorer     # Últimos 5 blocos
 - `POST /bloco` → Recebe blocos (interno)
 - `http://localhost:8080` → Kafka UI (eventos)
 
-## ⛏️ Fluxo de Mineração
+## Fluxo de Mineração
 
 1. Sistema gera NFTs (MINT automático)
 2. Mineradores buscam status
@@ -28,7 +28,7 @@ curl http://localhost:5000/explorer     # Últimos 5 blocos
 4. POST /bloco → validação
 5. Publica Kafka → disseminação
 
-## ⚙️ Configuração
+## Configuração
 
 Editar `.env`:
 ```bash
@@ -38,24 +38,24 @@ REDE_CENTRAL_URL=http://rede-central:5000  # URL da central
 ```
 Depois reconstruir: `docker-compose down && docker-compose up -d --build`
 
-## ✅ Requisitos
+## Requisitos
 
-- ✓ Blocos encadeados por hash
-- ✓ Proof of Work (dificuldade configurável)
-- ✓ 3 mineradores em competição
-- ✓ Mempool + validação
-- ✓ Consenso (maior trabalho)
-- ✓ Kafka + HTTP disseminação
-- ✓ Visualização tempo real
-- ✓ NFT (MINT auto-gerado)
+- Blocos encadeados por hash
+- Proof of Work (dificuldade configurável)
+- 3 mineradores em competição
+- Mempool + validação
+- Consenso (maior trabalho)
+- Kafka + HTTP disseminação
+- Visualização tempo real
+- NFT (MINT auto-gerado)
 
-## 🧪 Teste Rápido
+## Teste Rápido
 
 ```bash
 python teste.py  # Valida altura, mempool, taxa de mineração
 ```
 
-## 📁 Arquivos Principais
+## Arquivos Principais
 
 - `nft_models.py` - Classes Blockchain, Bloco, TransacaoNFT
 - `rede_central.py` - API Flask central

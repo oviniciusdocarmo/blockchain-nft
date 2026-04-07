@@ -46,13 +46,13 @@ def inicializar_kafka():
                 acks='all',
                 retries=3
             )
-            print("✅ Kafka conectado")
+            print("[OK] Kafka conectado")
             return
         except:
-            print(f"⏳ Tentando Kafka ({tentativa + 1}/{max_tentativas})...")
+            print(f"[TENTANDO] Kafka ({tentativa + 1}/{max_tentativas})...")
             time.sleep(2)
     
-    print("⚠️ Kafka não disponível, continuando sem publicação")
+    print("[AVISO] Kafka não disponível, continuando sem publicação")
 
 
 def publicar_evento(topico: str, evento: dict):
@@ -62,7 +62,7 @@ def publicar_evento(topico: str, evento: dict):
     try:
         kafka_producer.send(topico, value=evento)
     except Exception as e:
-        print(f"⚠️ Erro ao publicar: {e}")
+        print(f"[AVISO] Erro ao publicar: {e}")
 
 
 # ============================================================================
@@ -181,7 +181,7 @@ def gerador_nfts():
                 )
                 mempool.append(tx)
                 contador += 1
-                print(f"💎 [{datetime.now().strftime('%H:%M:%S')}] MINT: {nome_nft} → {dono}")
+                print(f"[MINT] [{datetime.now().strftime('%H:%M:%S')}] {nome_nft} → {dono}")
 
 
 def visualizador():
@@ -195,17 +195,17 @@ def visualizador():
         if altura > ultima_altura:
             os.system('clear' if os.name == 'posix' else 'cls')
             print("=" * 70)
-            print(f"🌐 BLOCKCHAIN NFT EXPLORER | Altura: {altura} blocos | Mempool: {mempool_size}")
+            print(f"BLOCKCHAIN NFT EXPLORER | Altura: {altura} blocos | Mempool: {mempool_size}")
             print("=" * 70)
             
             with trava:
                 para_mostrar = blockchain.cadeia[-5:]
                 for bloco in para_mostrar:
-                    print(f"\n📦 BLOCO #{bloco.index}")
-                    print(f"   ⛏️  Minerador: {bloco.minerador}")
-                    print(f"   📄 Transações: {len(bloco.transacoes)}")
-                    print(f"   🔢 Nonce: {bloco.nonce}")
-                    print(f"   🔐 Hash: \033[92m{bloco.hash}\033[0m")
+                    print(f"\n[BLOCO] #{bloco.index}")
+                    print(f"   Minerador: {bloco.minerador}")
+                    print(f"   Transações: {len(bloco.transacoes)}")
+                    print(f"   Nonce: {bloco.nonce}")
+                    print(f"   Hash: \033[92m{bloco.hash}\033[0m")
                     
                     if bloco.transacoes:
                         print(f"   Detalhes:")
@@ -222,7 +222,7 @@ def visualizador():
 # ============================================================================
 if __name__ == '__main__':
     print("\n" + "=" * 70)
-    print("🚀 REDE CENTRAL NFT BLOCKCHAIN")
+    print("REDE CENTRAL NFT BLOCKCHAIN")
     print("=" * 70)
     print(f"   Dificuldade: {DIFICULDADE} zeros")
     print(f"   Kafka: {KAFKA_BROKER}")
@@ -236,5 +236,5 @@ if __name__ == '__main__':
     threading.Thread(target=visualizador, daemon=True).start()
     
     # Flexiona Flask
-    print("🌐 Iniciando servidor HTTP na porta 5000...\n")
+    print("[INICIANDO] Servidor HTTP na porta 5000...\n")
     app.run(host='0.0.0.0', port=5000, debug=False)
