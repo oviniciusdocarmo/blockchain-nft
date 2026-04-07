@@ -2,13 +2,6 @@
 
 Sistema blockchain descentralizado com Proof of Work em tempo real.
 
-## 📊 Números
-
-- **Código:** 400 linhas (vs 1.200+ complexo)
-- **Performance:** 144 blocos/minuto (dificuldade 2)
-- **Mineradores:** 3 ativos (Alice, Bob, Carol)
-- **Transações:** Auto-geradas (5 NFTs/bloco)
-
 ## ⚡ Quick Start
 
 ```bash
@@ -70,7 +63,3 @@ python teste.py  # Valida altura, mempool, taxa de mineração
 - `.env` - Configuração (DIFICULDADE, KAFKA_BROKER, etc)
 - `docker-compose.yml` - Orquestração de 7 containers
 
----
-
-**Status:** ✅ Pronto para apresentação  
-**Código:** 400 linhas | **Docker:** 7 containers | **Versão:** Simplificada
