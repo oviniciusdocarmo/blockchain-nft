@@ -2,7 +2,7 @@
 
 Sistema blockchain descentralizado com Proof of Work em tempo real.
 
-## � Números
+## 📊 Números
 
 - **Código:** 400 linhas (vs 1.200+ complexo)
 - **Performance:** 144 blocos/minuto (dificuldade 2)
@@ -14,12 +14,12 @@ Sistema blockchain descentralizado com Proof of Work em tempo real.
 ```bash
 cp .env.exemplo .env                    # Cria .env
 docker-compose up -d                    # Inicia tudo
-docker logs -f rede-central-blockchain  # Vê mineração
-curl http://localhost:5000/status       # Status da rede
-curl http://localhost:5000/explorer     # Últimos blocos
+docker logs -f rede-central-blockchain  # Vê mineração em tempo real
+curl http://localhost:5000/status       # Status blockchain
+curl http://localhost:5000/explorer     # Últimos 5 blocos
 ```
 
-## � Endpoints HTTP
+## 📡 Endpoints HTTP
 
 - `GET /status` → Status blockchain + mempool
 - `GET /explorer` → Últimos 5 blocos
@@ -37,11 +37,13 @@ curl http://localhost:5000/explorer     # Últimos blocos
 
 ## ⚙️ Configuração
 
-Editar `docker-compose.yml`:
-```yaml
-DIFICULDADE: 2  # 2 zeros = ~1M tentativas/bloco, 3 = ~8M
+Editar `.env`:
+```bash
+DIFICULDADE=2              # 2 zeros = ~1M tentativas/bloco, 3 = ~8M tentativas
+KAFKA_BROKER=kafka:9092    # Broker interno do Docker
+REDE_CENTRAL_URL=http://rede-central:5000  # URL da central
 ```
-Depois: `docker-compose up -d --build`
+Depois reconstruir: `docker-compose down && docker-compose up -d --build`
 
 ## ✅ Requisitos
 
@@ -57,8 +59,16 @@ Depois: `docker-compose up -d --build`
 ## 🧪 Teste Rápido
 
 ```bash
-python teste.py  # Valida status, performance, APIs
+python teste.py  # Valida altura, mempool, taxa de mineração
 ```
+
+## 📁 Arquivos Principais
+
+- `nft_models.py` - Classes Blockchain, Bloco, TransacaoNFT
+- `rede_central.py` - API Flask central
+- `minerador.py` - PoW distribuído (Alice, Bob, Carol)
+- `.env` - Configuração (DIFICULDADE, KAFKA_BROKER, etc)
+- `docker-compose.yml` - Orquestração de 7 containers
 
 ---
 
