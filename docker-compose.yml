@@ -1,0 +1,135 @@
+version: '3.9'
+
+services:
+  # ============================================================================
+  # KAFKA
+  # ============================================================================
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper-blockchain
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_INIT_LIMIT: 5
+    healthcheck:
+      test: ["CMD-SHELL", "echo ruok | nc localhost 2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - blockchain-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka-blockchain
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+    ports:
+      - "9092:9092"
+    networks:
+      - blockchain-network
+
+  # ============================================================================
+  # REDE CENTRAL (Flask)
+  # ============================================================================
+  rede-central:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rede-central-blockchain
+    depends_on:
+      - kafka
+    env_file:
+      - .env
+    environment:
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "5000:5000"
+    networks:
+      - blockchain-network
+    volumes:
+      - .:/app
+    command: python rede_central.py
+
+  # ============================================================================
+  # MINERADORES
+  # ============================================================================
+  minerador-alice:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: minerador-alice
+    depends_on:
+      - rede-central
+      - kafka
+    env_file:
+      - .env
+    environment:
+      PYTHONUNBUFFERED: 1
+    networks:
+      - blockchain-network
+    volumes:
+      - .:/app
+    command: python minerador.py Alice
+
+  minerador-bob:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: minerador-bob
+    depends_on:
+      - rede-central
+      - kafka
+    env_file:
+      - .env
+    environment:
+      PYTHONUNBUFFERED: 1
+    networks:
+      - blockchain-network
+    volumes:
+      - .:/app
+    command: python minerador.py Bob
+
+  minerador-carol:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: minerador-carol
+    depends_on:
+      - rede-central
+      - kafka
+    env_file:
+      - .env
+    environment:
+      PYTHONUNBUFFERED: 1
+    networks:
+      - blockchain-network
+    volumes:
+      - .:/app
+    command: python minerador.py Carol
+
+  # ============================================================================
+  # KAFKA UI (Dashboard - OPCIONAL)
+  # ============================================================================
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui-blockchain
+    environment:
+      KAFKA_CLUSTERS_0_NAME: blockchain
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    ports:
+      - "8080:8080"
+    networks:
+      - blockchain-network
+
+networks:
+  blockchain-network:
+    driver: bridge
